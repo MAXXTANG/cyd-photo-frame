@@ -1,0 +1,31 @@
+name: Checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  firmware-and-host:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - run: python -m pip install platformio Pillow pyserial esptool==4.5.1
+      - run: python -m unittest discover -s test -p 'test_*.py' -v
+      - name: Native C++ tests
+        run: |
+          c++ -std=c++11 -Iinclude test/test_format.cpp -o /tmp/cyd-format
+          /tmp/cyd-format
+          c++ -std=c++11 -Iinclude test/test_gesture.cpp -o /tmp/cyd-gesture
+          /tmp/cyd-gesture
+          c++ -std=c++11 -Iinclude test/test_network.cpp -o /tmp/cyd-network
+          /tmp/cyd-network
+      - run: pio run -e cyd-st7789 -e cyd-ili9341
+      - run: pio run -e cyd-st7789 -t buildfs
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: npm install --no-save playwright
+      - run: npx playwright install --with-deps chromium
+      - run: node test/browser.cjs

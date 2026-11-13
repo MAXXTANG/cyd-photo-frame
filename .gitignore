@@ -1,0 +1,17 @@
+.pio/
+.venv/
+include/web_page.h
+.flash-backups/
+__pycache__/
+node_modules/
+.DS_Store
+*.log
+.env
+.env.*
+data/*
+!data/README.md
+firmware/
+docs/private/
+docs/previews/
+docs/sample-contact-sheet.png
+docs/*.json
